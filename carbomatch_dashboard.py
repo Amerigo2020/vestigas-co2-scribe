@@ -325,13 +325,13 @@ def main():
         with col2b:
             st.metric(
                 "⚙️ Intensity",
-                f"{intensity:.3f} kg CO₂e/kg",
-                delta="per material weight"
+                f"{intensity:.2f} kg CO₂e/kg",
+                delta="per kg of material"
             )
     
     st.divider()
     
-    # ============== TOP EMITTERS SECTION (MOVED UP) ==============
+    # ============== TOP EMITTERS SECTION (SECTION 2) ==============
     st.markdown("### 📊 Top Material Emitters (A1-A3)")
     
     st.plotly_chart(
@@ -341,27 +341,7 @@ def main():
     
     st.divider()
     
-    # ============== VISUALIZATIONS SECTION ==============
-    st.markdown("### 📈 Detailed Analysis - Materials & Suppliers")
-    
-    col_left, col_right = st.columns(2)
-    
-    with col_left:
-        chart_fig, others_count, major_count = create_supplier_category_chart(df)
-        st.plotly_chart(chart_fig, width='stretch')
-        
-        # Show analysis info
-        st.info(f"📊 **Analysis:** {major_count} suppliers >1% | {others_count} suppliers <1% → Others")
-    
-    with col_right:
-        st.plotly_chart(
-            create_status_distribution_chart(df),
-            width='stretch'
-        )
-    
-    st.divider()
-    
-    # ============== AUDIT TABLE SECTION ==============
+    # ============== AUDIT TABLE SECTION (SECTION 3) ==============
     st.markdown("### 📋 Audit Data Table")
     
     # Filters
@@ -430,32 +410,65 @@ def main():
     
     st.divider()
     
+    # ============== VISUALIZATIONS SECTION (SECTION 4 - MOVED DOWN) ==============
+    st.markdown("### 📈 Detailed Analysis - Materials & Suppliers")
+    
+    col_left, col_right = st.columns(2)
+    
+    with col_left:
+        chart_fig, others_count, major_count = create_supplier_category_chart(df)
+        st.plotly_chart(chart_fig, width='stretch')
+        
+        # Show analysis info
+        st.info(f"📊 **Analysis:** {major_count} suppliers >1% | {others_count} suppliers <1% → Others")
+    
+    with col_right:
+        st.plotly_chart(
+            create_status_distribution_chart(df),
+            width='stretch'
+        )
+    
+    st.divider()
+    
     # ============== SUMMARY SECTION ==============
     st.markdown("### 📌 Summary - Key Figures")
+    
+    st.markdown("""
+    **📊 What is CO₂e Intensity?**
+    
+    Intensity = Total CO₂e ÷ Total Material Weight
+    
+    It shows how much carbon is emitted per kilogram of material received.
+    
+    **Example:** If intensity = 929 kg CO₂e/kg, it means:
+    - For every 1 kg of delivered material, we emit ~929 kg of CO₂e during production (A1-A3)
+    - This high value is because the materials are production-intensive (steel, concrete, etc.)
+    - Lower intensity = more sustainable material choice
+    """)
     
     summary_col1, summary_col2, summary_col3 = st.columns(3)
     
     with summary_col1:
         st.write("**🏭 Material Emissions (A1-A3):**")
-        st.write(f"- {kpis['material_co2e']/1e6:.2f}M kg CO₂e")
-        st.write(f"- {kpis['material_pct']:.1f}% of total footprint")
-        st.write(f"- Average: {kpis['material_co2e']/kpis['total_items']:,.0f} kg/item")
+        st.write(f"- Total: {kpis['material_co2e']/1e6:.2f}M kg CO₂e")
+        st.write(f"- Percentage: {kpis['material_pct']:.1f}% of total")
+        st.write(f"- Per Item: {kpis['material_co2e']/kpis['total_items']:,.0f} kg CO₂e/item")
     
     with summary_col2:
         st.write("**✅ Processing Status:**")
         st.write(f"- Successful: {kpis['successful_items']} ({kpis['success_rate']:.1f}%)")
         st.write(f"- Failed: {kpis['failed_items']}")
-        st.write(f"- Total: {kpis['total_items']} materials")
+        st.write(f"- Total Items: {kpis['total_items']}")
     
     with summary_col3:
         st.write("**📊 Material Weight & Intensity:**")
         total_weight = df['Menge'].sum()
-        st.write(f"- Total weight: {total_weight:,.0f} kg")
-        st.write(f"- CO₂e Intensity: {intensity:.3f} kg CO₂e/kg material")
-        st.write(f"- Total CO₂e: {kpis['total_co2e']/1e6:.2f}M kg")
+        st.write(f"- Total Weight: {total_weight:,.0f} kg")
+        st.write(f"- **Intensity: {intensity:.2f} kg CO₂e/kg**")
+        st.write(f"  (Carbon per kg material)")
     
     st.markdown("---")
-    st.markdown("<p style='text-align: center; font-size: 0.8em; color: #999;'>CSRD CO₂ Emissions Dashboard | VESTIGAS Hackathon 2025 | Data Audit Trail</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 0.8em; color: #999;'>CarbonMatch Dashboard | CSRD Compliance Reporting | Data Audit Trail</p>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
