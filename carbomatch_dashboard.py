@@ -18,7 +18,7 @@ import numpy as np
 
 # Page configuration
 st.set_page_config(
-    page_title="CarbonMatch - Carbon Footprint Dashboard",
+    page_title="CarbonMatch - CO₂ Emissions Dashboard",
     page_icon="🌱",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -267,9 +267,18 @@ def create_status_distribution_chart(df):
 def main():
     """Main dashboard application"""
     
-    # Title and header
-    st.markdown("<h1 class='dashboard-title'>🌱 CSRD CO₂ Emissions Dashboard</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; color: #666;'>Comprehensive audit and visualization of CSRD-compliant CO₂ reporting | Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>", unsafe_allow_html=True)
+    # Title and header with Logo
+    st.markdown("""
+    <div style='display: flex; align-items: center; margin-bottom: 30px;'>
+        <div style='font-size: 3em; margin-right: 20px;'>🌱</div>
+        <div>
+            <h1 style='margin: 0; color: #1e3c72;'>CarbonMatch</h1>
+            <p style='margin: 0; color: #666; font-size: 0.9em;'>CO₂ Emissions Dashboard & CSRD Compliance Reporting</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f"<p style='text-align: center; color: #666; font-size: 0.9em;'>Comprehensive audit and visualization of CSRD-compliant CO₂ reporting | Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>", unsafe_allow_html=True)
     
     # Load data
     df = load_data()
