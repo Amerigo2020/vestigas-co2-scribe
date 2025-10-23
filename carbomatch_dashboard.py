@@ -18,7 +18,7 @@ import numpy as np
 
 # Page configuration
 st.set_page_config(
-    page_title="CarbonMatch - CO₂ Emissions Dashboard",
+    page_title="CarbonMatch - Dashboard",
     page_icon="🌱",
     layout="wide",
     initial_sidebar_state="expanded"
