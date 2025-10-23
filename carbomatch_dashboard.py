@@ -363,7 +363,8 @@ def main():
     
     st.plotly_chart(
         create_top_emitters_chart(df, top_n=15),
-        width='stretch'
+        width='stretch',
+        config={'responsive': True, 'displayModeBar': False}
     )
     
     st.divider()
@@ -444,7 +445,7 @@ def main():
     
     with col_left:
         chart_fig, others_count, major_count = create_supplier_category_chart(df)
-        st.plotly_chart(chart_fig, width='stretch')
+        st.plotly_chart(chart_fig, width='stretch', config={'responsive': True, 'displayModeBar': False})
         
         # Show analysis info
         st.info(f"📊 **Analysis:** {major_count} suppliers >1% | {others_count} suppliers <1% → Others")
@@ -452,7 +453,8 @@ def main():
     with col_right:
         st.plotly_chart(
             create_status_distribution_chart(df),
-            width='stretch'
+            width='stretch',
+            config={'responsive': True, 'displayModeBar': False}
         )
     
     st.divider()
