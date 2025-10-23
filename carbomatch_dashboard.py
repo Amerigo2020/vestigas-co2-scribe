@@ -291,7 +291,7 @@ def main():
     kpis = calculate_kpis(df)
     
     # ============== KPI SECTION (TOP METRICS) ==============
-    st.markdown("### 🎯 KEY METRICS - Überblick")
+    st.markdown("### 🎯 KEY METRICS - Overview")
     
     # Calculate intensity
     intensity = kpis['total_co2e'] / (df['Menge'].sum()) if df['Menge'].sum() > 0 else 0
@@ -331,29 +331,33 @@ def main():
     
     st.divider()
     
+    # ============== TOP EMITTERS SECTION (MOVED UP) ==============
+    st.markdown("### 📊 Top Material Emitters (A1-A3)")
+    
+    st.plotly_chart(
+        create_top_emitters_chart(df, top_n=15),
+        width='stretch'
+    )
+    
+    st.divider()
+    
     # ============== VISUALIZATIONS SECTION ==============
-    st.markdown("### 📈 DETAILANALYSE - Material & Suppliers")
+    st.markdown("### 📈 Detailed Analysis - Materials & Suppliers")
     
     col_left, col_right = st.columns(2)
     
     with col_left:
         chart_fig, others_count, major_count = create_supplier_category_chart(df)
-        st.plotly_chart(chart_fig, use_container_width=True)
+        st.plotly_chart(chart_fig, width='stretch')
         
         # Show analysis info
-        st.info(f"📊 **Analyse:** {major_count} Lieferanten >1% | {others_count} Lieferanten <1% → Others")
+        st.info(f"📊 **Analysis:** {major_count} suppliers >1% | {others_count} suppliers <1% → Others")
     
     with col_right:
         st.plotly_chart(
             create_status_distribution_chart(df),
-            use_container_width=True
+            width='stretch'
         )
-    
-    # Top emitters - Material fokussiert (nur A1-A3)
-    st.plotly_chart(
-        create_top_emitters_chart(df, top_n=15),
-        use_container_width=True
-    )
     
     st.divider()
     
@@ -411,7 +415,7 @@ def main():
     # Display as interactive table
     st.dataframe(
         display_df,
-        use_container_width=True,
+        width='stretch',
         height=400
     )
     
@@ -427,27 +431,27 @@ def main():
     st.divider()
     
     # ============== SUMMARY SECTION ==============
-    st.markdown("### 📌 ZUSAMMENFASSUNG - Kernmetriken")
+    st.markdown("### 📌 Summary - Key Figures")
     
     summary_col1, summary_col2, summary_col3 = st.columns(3)
     
     with summary_col1:
-        st.write("**🏭 Material-Emissionen (A1-A3):**")
+        st.write("**🏭 Material Emissions (A1-A3):**")
         st.write(f"- {kpis['material_co2e']/1e6:.2f}M kg CO₂e")
-        st.write(f"- {kpis['material_pct']:.1f}% des Gesamtfußabdrucks")
-        st.write(f"- Durchschnitt: {kpis['material_co2e']/kpis['total_items']:,.0f} kg/item")
+        st.write(f"- {kpis['material_pct']:.1f}% of total footprint")
+        st.write(f"- Average: {kpis['material_co2e']/kpis['total_items']:,.0f} kg/item")
     
     with summary_col2:
-        st.write("**✅ Verarbeitungs-Status:**")
-        st.write(f"- Erfolgreich: {kpis['successful_items']} ({kpis['success_rate']:.1f}%)")
-        st.write(f"- Fehlerhafte: {kpis['failed_items']}")
-        st.write(f"- Gesamt: {kpis['total_items']} Materialien")
+        st.write("**✅ Processing Status:**")
+        st.write(f"- Successful: {kpis['successful_items']} ({kpis['success_rate']:.1f}%)")
+        st.write(f"- Failed: {kpis['failed_items']}")
+        st.write(f"- Total: {kpis['total_items']} materials")
     
     with summary_col3:
-        st.write("**📊 Materialgewicht & Intensität:**")
+        st.write("**📊 Material Weight & Intensity:**")
         total_weight = df['Menge'].sum()
-        st.write(f"- Gesamtgewicht: {total_weight:,.0f} kg")
-        st.write(f"- CO₂e Intensität: {intensity:.3f} kg CO₂e/kg Material")
+        st.write(f"- Total weight: {total_weight:,.0f} kg")
+        st.write(f"- CO₂e Intensity: {intensity:.3f} kg CO₂e/kg material")
         st.write(f"- Total CO₂e: {kpis['total_co2e']/1e6:.2f}M kg")
     
     st.markdown("---")
