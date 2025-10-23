@@ -104,25 +104,44 @@ def calculate_kpis(df):
     }
 
 
-def create_module_emissions_chart(material_co2e, transport_co2e):
-    """Create donut chart for module emissions (A1-A3 vs A4)"""
-    total = material_co2e + transport_co2e
+def create_supplier_category_chart(df):
+    """Create pie chart for supplier emissions - group small ones as 'Others'"""
+    supplier_emissions = df.groupby('Lieferant')['calculated_co2e_a1_a3'].sum().sort_values(ascending=False)
+    total_emissions = supplier_emissions.sum()
+    
+    # Calculate percentages
+    supplier_pcts = (supplier_emissions / total_emissions * 100)
+    
+    # Split into major (>1%) and minor (<1%)
+    major_suppliers = supplier_pcts[supplier_pcts >= 1.0]
+    minor_suppliers = supplier_pcts[supplier_pcts < 1.0]
+    
+    # Build chart data
+    labels = list(major_suppliers.index)
+    values = [supplier_emissions[s] for s in labels]
+    colors_palette = px.colors.qualitative.Set3
+    
+    # Add "Others" if there are minor suppliers
+    if len(minor_suppliers) > 0:
+        labels.append(f"Others ({len(minor_suppliers)} suppliers)")
+        values.append(minor_suppliers.sum() * total_emissions / 100)
+    
+    # Ensure enough colors
+    colors = [colors_palette[i % len(colors_palette)] for i in range(len(labels))]
     
     fig = go.Figure(data=[go.Pie(
-        labels=['Material (A1-A3)', 'Transport (A4)'],
-        values=[material_co2e, transport_co2e],
-        hole=.4,
-        marker=dict(colors=['#1e3c72', '#00b894']),
-        textinfo='label+percent+value',
+        labels=labels,
+        values=values,
+        marker=dict(colors=colors),
+        textinfo='label+percent',
         textposition='inside',
         hovertemplate='<b>%{label}</b><br>CO₂e: %{value:,.0f} kg<br>Share: %{percent}<extra></extra>'
     )])
     
     fig.update_layout(
-        title="Emissions by Module Type",
-        showlegend=True,
+        title="Material Emissions by Supplier (A1-A3, <1% grouped as Others)",
         height=400,
-        font=dict(size=12),
+        showlegend=True,
         margin=dict(l=0, r=0, t=30, b=0)
     )
     
@@ -261,46 +280,55 @@ def main():
     # Calculate KPIs
     kpis = calculate_kpis(df)
     
-    # ============== KPI SECTION ==============
-    st.markdown("### 📊 Key Performance Indicators")
+    # ============== KPI SECTION (TOP METRICS) ==============
+    st.markdown("### 🎯 KEY METRICS - Überblick")
     
-    col1, col2, col3, col4 = st.columns(4)
+    # Calculate intensity
+    intensity = kpis['total_co2e'] / (df['Menge'].sum()) if df['Menge'].sum() > 0 else 0
+    
+    # Create 2x2 grid with styled metrics
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.metric(
-            "Grand Total CO2e",
-            f"{kpis['total_co2e']/1e6:.1f}M kg"
-        )
+        col1a, col1b = st.columns(2)
+        with col1a:
+            st.metric(
+                "📊 TOTAL CO₂e",
+                f"{kpis['total_co2e']/1e6:.2f}M kg",
+                delta="Material Footprint"
+            )
+        with col1b:
+            st.metric(
+                "✅ Success Rate",
+                f"{kpis['success_rate']:.1f}%",
+                delta=f"{kpis['successful_items']}/{kpis['total_items']} items"
+            )
     
     with col2:
-        st.metric(
-            "Material Share",
-            f"{kpis['material_pct']:.1f}%"
-        )
-    
-    with col3:
-        st.metric(
-            "Success Rate",
-            f"{kpis['success_rate']:.1f}%"
-        )
-    
-    with col4:
-        intensity = kpis['total_co2e'] / (df['Menge'].sum()) if df['Menge'].sum() > 0 else 0
-        st.metric(
-            "CO2e Intensity",
-            f"{intensity:.2f} kg/kg"
-        )
+        col2a, col2b = st.columns(2)
+        with col2a:
+            st.metric(
+                "🏭 Material CO₂e (A1-A3)",
+                f"{kpis['material_co2e']/1e6:.2f}M kg",
+                delta=f"{kpis['material_pct']:.1f}% of total"
+            )
+        with col2b:
+            st.metric(
+                "⚙️ Intensity",
+                f"{intensity:.3f} kg CO₂e/kg",
+                delta="per material weight"
+            )
     
     st.divider()
     
     # ============== VISUALIZATIONS SECTION ==============
-    st.markdown("### 📈 Emissions Analysis")
+    st.markdown("### 📈 DETAILANALYSE - Material & Suppliers")
     
     col_left, col_right = st.columns(2)
     
     with col_left:
         st.plotly_chart(
-            create_module_emissions_chart(kpis['material_co2e'], kpis['transport_co2e']),
+            create_supplier_category_chart(df),
             use_container_width=True
         )
     
@@ -310,15 +338,9 @@ def main():
             use_container_width=True
         )
     
-    # Top emitters
+    # Top emitters - Material fokussiert (nur A1-A3)
     st.plotly_chart(
-        create_top_emitters_chart(df, top_n=10),
-        use_container_width=True
-    )
-    
-    # Supplier emissions
-    st.plotly_chart(
-        create_supplier_emissions_chart(df),
+        create_top_emitters_chart(df, top_n=15),
         use_container_width=True
     )
     
@@ -394,27 +416,28 @@ def main():
     st.divider()
     
     # ============== SUMMARY SECTION ==============
-    st.markdown("### 📌 Summary Statistics")
+    st.markdown("### 📌 ZUSAMMENFASSUNG - Kernmetriken")
     
     summary_col1, summary_col2, summary_col3 = st.columns(3)
     
     with summary_col1:
-        st.write("**Emissions Breakdown:**")
-        st.write(f"- Material (A1-A3): {kpis['material_co2e']/1e6:.2f}M kg")
-        st.write(f"- Transport (A4): {kpis['transport_co2e']/1e6:.2f}M kg")
-        st.write(f"- **Total: {kpis['total_co2e']/1e6:.2f}M kg**")
+        st.write("**🏭 Material-Emissionen (A1-A3):**")
+        st.write(f"- {kpis['material_co2e']/1e6:.2f}M kg CO₂e")
+        st.write(f"- {kpis['material_pct']:.1f}% des Gesamtfußabdrucks")
+        st.write(f"- Durchschnitt: {kpis['material_co2e']/kpis['total_items']:,.0f} kg/item")
     
     with summary_col2:
-        st.write("**Success Metrics:**")
-        st.write(f"- Total items: {kpis['total_items']}")
-        st.write(f"- Successful: {kpis['successful_items']} ({kpis['success_rate']:.1f}%)")
-        st.write(f"- Failed: {kpis['failed_items']}")
+        st.write("**✅ Verarbeitungs-Status:**")
+        st.write(f"- Erfolgreich: {kpis['successful_items']} ({kpis['success_rate']:.1f}%)")
+        st.write(f"- Fehlerhafte: {kpis['failed_items']}")
+        st.write(f"- Gesamt: {kpis['total_items']} Materialien")
     
     with summary_col3:
-        st.write("**Material Insights:**")
-        st.write(f"- Total weight: {df['Menge'].sum():,.0f} kg")
-        st.write(f"- Average CO₂e per item: {kpis['total_co2e']/kpis['total_items']:,.0f} kg")
-        st.write(f"- CO₂e intensity: {intensity:.2f} kg/kg material")
+        st.write("**📊 Materialgewicht & Intensität:**")
+        total_weight = df['Menge'].sum()
+        st.write(f"- Gesamtgewicht: {total_weight:,.0f} kg")
+        st.write(f"- CO₂e Intensität: {intensity:.3f} kg CO₂e/kg Material")
+        st.write(f"- Total CO₂e: {kpis['total_co2e']/1e6:.2f}M kg")
     
     st.markdown("---")
     st.markdown("<p style='text-align: center; font-size: 0.8em; color: #999;'>CSRD CO₂ Emissions Dashboard | VESTIGAS Hackathon 2025 | Data Audit Trail</p>", unsafe_allow_html=True)
