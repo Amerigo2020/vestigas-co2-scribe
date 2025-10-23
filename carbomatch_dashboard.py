@@ -300,7 +300,7 @@ def main():
         <div>
             <h1 style='margin: 0; color: #1e3c72; font-size: 2.5em; font-weight: 700;'>CarbonMatch</h1>
             <p style='margin: 5px 0 0 0; color: #27ae60; font-size: 1.1em; font-weight: 600;'>TEAM</p>
-            <p style='margin: 8px 0 0 0; color: #666; font-size: 0.95em;'>CO₂ Emissions Dashboard & CSRD Compliance</p>
+            <p style='margin: 8px 0 0 0; color: #666; font-size: 0.95em;'>CO₂ Dashboard</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
