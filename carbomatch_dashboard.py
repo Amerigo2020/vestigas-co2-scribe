@@ -267,13 +267,40 @@ def create_status_distribution_chart(df):
 def main():
     """Main dashboard application"""
     
-    # Title and header with Logo
+    # Title and header with Professional Logo
     st.markdown("""
-    <div style='display: flex; align-items: center; margin-bottom: 30px;'>
-        <div style='font-size: 3em; margin-right: 20px;'>🌱</div>
+    <div style='display: flex; align-items: center; margin-bottom: 30px; gap: 20px;'>
+        <!-- CarbonMatch Team Logo SVG -->
+        <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Leaf -->
+            <g id="leaf">
+                <ellipse cx="50" cy="60" rx="18" ry="35" fill="none" stroke="#2ecc71" stroke-width="3" transform="rotate(-35 50 60)"/>
+                <path d="M 50 30 Q 55 45 50 65" fill="none" stroke="#2ecc71" stroke-width="2"/>
+            </g>
+            <!-- Puzzle piece 1 -->
+            <g id="puzzle1" transform="translate(80, 40)">
+                <rect x="0" y="0" width="35" height="35" fill="none" stroke="#3498db" stroke-width="2.5" rx="3"/>
+                <circle cx="35" cy="17" r="6" fill="none" stroke="#3498db" stroke-width="2.5"/>
+            </g>
+            <!-- Puzzle piece 2 -->
+            <g id="puzzle2" transform="translate(80, 75)">
+                <rect x="0" y="0" width="35" height="35" fill="none" stroke="#3498db" stroke-width="2.5" rx="3"/>
+                <circle cx="0" cy="17" r="6" fill="none" stroke="#3498db" stroke-width="2.5"/>
+            </g>
+            <!-- Puzzle piece 3 -->
+            <g id="puzzle3" transform="translate(115, 57)">
+                <rect x="0" y="0" width="35" height="35" fill="none" stroke="#3498db" stroke-width="2.5" rx="3"/>
+                <circle cx="17" cy="35" r="6" fill="none" stroke="#3498db" stroke-width="2.5"/>
+            </g>
+            <!-- Connection lines -->
+            <line x1="115" y1="75" x2="130" y2="92" stroke="#95a5a6" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <line x1="115" y1="55" x2="130" y2="70" stroke="#95a5a6" stroke-width="1.5" stroke-dasharray="3,3"/>
+        </svg>
+        
         <div>
-            <h1 style='margin: 0; color: #1e3c72;'>CarbonMatch</h1>
-            <p style='margin: 0; color: #666; font-size: 0.9em;'>CO₂ Emissions Dashboard & CSRD Compliance Reporting</p>
+            <h1 style='margin: 0; color: #1e3c72; font-size: 2.5em; font-weight: 700;'>CarbonMatch</h1>
+            <p style='margin: 5px 0 0 0; color: #27ae60; font-size: 1.1em; font-weight: 600;'>TEAM</p>
+            <p style='margin: 8px 0 0 0; color: #666; font-size: 0.95em;'>CO₂ Emissions Dashboard & CSRD Compliance</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
