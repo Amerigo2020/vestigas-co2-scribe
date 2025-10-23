@@ -122,8 +122,9 @@ def create_supplier_category_chart(df):
     colors_palette = px.colors.qualitative.Set3
     
     # Add "Others" if there are minor suppliers
-    if len(minor_suppliers) > 0:
-        labels.append(f"Others ({len(minor_suppliers)} suppliers)")
+    others_count = len(minor_suppliers)
+    if others_count > 0:
+        labels.append(f"Others ({others_count} supplier{'s' if others_count > 1 else ''})")
         values.append(minor_suppliers.sum() * total_emissions / 100)
     
     # Ensure enough colors
@@ -145,7 +146,7 @@ def create_supplier_category_chart(df):
         margin=dict(l=0, r=0, t=30, b=0)
     )
     
-    return fig
+    return fig, others_count, len(major_suppliers)
 
 
 def create_top_emitters_chart(df, top_n=10):
@@ -327,10 +328,11 @@ def main():
     col_left, col_right = st.columns(2)
     
     with col_left:
-        st.plotly_chart(
-            create_supplier_category_chart(df),
-            use_container_width=True
-        )
+        chart_fig, others_count, major_count = create_supplier_category_chart(df)
+        st.plotly_chart(chart_fig, use_container_width=True)
+        
+        # Show analysis info
+        st.info(f"📊 **Analyse:** {major_count} Lieferanten >1% | {others_count} Lieferanten <1% → Others")
     
     with col_right:
         st.plotly_chart(
